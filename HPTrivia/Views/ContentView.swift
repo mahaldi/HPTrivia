@@ -53,14 +53,20 @@ struct ContentView: View {
                         Spacer()
                         HStack {
                             Spacer()
-                            Button {
-                                showInstructions.toggle()
-                            } label: {
-                                Image(systemName: "info.circle.fill")
-                                    .font(.largeTitle)
-                                    .foregroundStyle(.white)
-                                    .shadow(radius: 5)
+                            VStack {
+                                if animateViewIn {
+                                    Button {
+                                        showInstructions.toggle()
+                                    } label: {
+                                        Image(systemName: "info.circle.fill")
+                                            .font(.largeTitle)
+                                            .foregroundStyle(.white)
+                                            .shadow(radius: 5)
+                                    }
+                                    .transition(.offset(x: -geo.size.width / 4))
+                                }
                             }
+                            .animation(.easeOut(duration: 0.7).delay(2.7), value: animateViewIn)
                             Spacer()
                             VStack {
                                 if animateViewIn {
@@ -87,14 +93,20 @@ struct ContentView: View {
                             }
                             .animation(.easeOut(duration: 0.7).delay(2), value: animateViewIn)
                             Spacer()
-                            Button {
-                                showSettings.toggle()
-                            } label: {
-                                Image(systemName: "gearshape.fill")
-                                    .font(.largeTitle)
-                                    .foregroundStyle(.white)
-                                    .shadow(radius: 5)
+                            VStack {
+                                if animateViewIn {
+                                    Button {
+                                        showSettings.toggle()
+                                    } label: {
+                                        Image(systemName: "gearshape.fill")
+                                            .font(.largeTitle)
+                                            .foregroundStyle(.white)
+                                            .shadow(radius: 5)
+                                    }
+                                    .transition(.offset(x: geo.size.width / 4))
+                                }
                             }
+                            .animation(.easeOut(duration: 0.7).delay(2.7), value: animateViewIn)
                             Spacer()
                         }
                         .frame(width: geo.size.width)
