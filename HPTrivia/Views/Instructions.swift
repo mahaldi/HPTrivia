@@ -43,7 +43,7 @@ struct Instructions: View {
                     Text("Good Luck!")
                         .font(.title)
                     
-                }
+                }.foregroundStyle(.black)
                 Button("Done") {
                     dismiss()
                 }
