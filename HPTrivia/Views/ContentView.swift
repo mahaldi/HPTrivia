@@ -24,7 +24,7 @@ struct ContentView: View {
                     Spacer()
                     RecentScores(animateViewIn: $animateViewIn)
                     Spacer()
-                    ButtonBar(geo: geo, animateViewIn: $animateViewIn)
+                    ButtonBar(geo: geo, animateViewIn: $animateViewIn, playGame: $playGame)
                     Spacer()
                 }
             }
@@ -34,7 +34,16 @@ struct ContentView: View {
         .ignoresSafeArea()
         .onAppear {
             animateViewIn = true
-            //            playAudio()
+            playAudio()
+        }
+        .fullScreenCover(isPresented: $playGame) {
+            Gameplay()
+                .onAppear {
+                    audioPlayer.setVolume(0, fadeDuration: 2)
+                }
+                .onDisappear {
+                    audioPlayer.setVolume(1, fadeDuration: 3)
+                }
         }
     }
     
@@ -42,7 +51,7 @@ struct ContentView: View {
         let sound = Bundle.main.path(forResource: "magic-in-the-air", ofType: "mp3")
         audioPlayer = try! AVAudioPlayer(contentsOf: URL(filePath: sound!))
         audioPlayer.numberOfLoops = -1 // infinity
-        audioPlayer.play()
+//        audioPlayer.play()
     }
 }
 
