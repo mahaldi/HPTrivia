@@ -17,16 +17,35 @@ struct Gameplay: View {
     
     @State private var animateViewsIn = false
     @State private var revealHint = false
+    @State private var revealBook = false
+    
+    private var backgroundView: some View {
+        GeometryReader { geo in
+            Image(.hogwarts)
+                .resizable()
+                .frame(width: geo.size.width * 3.0, height: geo.size.height * 1.05)
+                .overlay(
+                    Rectangle().foregroundStyle(Color.black.opacity(0.8))
+                )
+        }
+    }
+
+    private var questionText: some View {
+        Text(game.currentQuestion.question)
+            .font(.custom("PartyLetPlain", size: 50))
+            .multilineTextAlignment(.center)
+            .padding()
+    }
+    
     var body: some View {
         GeometryReader { geo in
             ZStack {
                 Image(.hogwarts)
                     .resizable()
-                    .frame(width: geo.size.width * 3, height: geo.size.height * 1.05)
-                    .overlay {
-                        Rectangle()
-                            .foregroundStyle(.black.opacity(0.8))
-                    }
+                    .scaledToFill()
+                    .frame(width: geo.size.width * 3.0, height: geo.size.height * 1.05)
+                    .overlay(Rectangle().fill(Color.black.opacity(0.8)))
+                    .clipped()
                 VStack {
                     // MARK: Controls
                     HStack {
@@ -47,10 +66,7 @@ struct Gameplay: View {
                     // MARK: Question
                     VStack {
                         if animateViewsIn {
-                            Text(game.currentQuestion.question)
-                                .font(.custom("PartyLetPlain", size: 50))
-                                .multilineTextAlignment(.center)
-                                .padding()
+                            questionText
                                 .transition(.scale)
                         }
                     }
@@ -61,11 +77,11 @@ struct Gameplay: View {
                     HStack {
                         VStack {
                             if animateViewsIn {
-                                Image(systemName: "questionmark.app.fill")
+                                let baseIcon = Image(systemName: "questionmark.app.fill")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 100, height: 100)
-                                    .foregroundStyle(.cyan)
+                                    .foregroundStyle(Color.cyan)
                                     .padding()
                                     .transition(.offset(x: -geo.size.width / 2))
                                     .phaseAnimator([false, true as Bool]) { content, phase in
@@ -73,6 +89,8 @@ struct Gameplay: View {
                                     } animation: { _ in
                                             .easeInOut(duration: 0.7)
                                     }
+
+                                baseIcon
                                     .onTapGesture {
                                         withAnimation(.easeOut(duration: 1)) {
                                             revealHint = true
@@ -84,14 +102,15 @@ struct Gameplay: View {
                                     .scaleEffect(revealHint ? 5 : 1)
                                     .offset(x: revealHint ? geo.size.width / 2 : 0)
                                     .opacity(revealHint ? 0 : 1)
-                                    .overlay {
+                                    .overlay(
                                         Text(game.currentQuestion.hint)
                                             .padding(.leading, 20)
                                             .minimumScaleFactor(0.5)
                                             .multilineTextAlignment(.center)
                                             .opacity(revealHint ? 1 : 0)
                                             .scaleEffect(revealHint ? 1.33 : 1)
-                                    }
+                                    )
+                                    .transition(.offset(x: -geo.size.width / 2))
                             }
                             
                         }
@@ -99,37 +118,48 @@ struct Gameplay: View {
                         Spacer()
                         VStack {
                             if animateViewsIn {
-                                Image(systemName: "app.fill")
+                                let baseIcon2 = Image(systemName: "app.fill")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 100, height: 100)
-                                    .foregroundStyle(.cyan)
+                                    .foregroundStyle(Color.cyan)
+                                    .overlay {
+                                        Image(systemName: "book.closed")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 50)
+                                            .foregroundStyle(.black)
+                                    }
                                     .padding()
-                                    .transition(.offset(x: -geo.size.width / 2))
+                                    .transition(.offset(x: geo.size.width / 2))
+                                    // animasi terlihat "bergoyang" atau "berdenyut" dengan rotasi yang bergantian antara 13° dan 17°, menciptakan efek visual yang menarik perhatian pengguna untuk mengklik hint tersebut.
                                     .phaseAnimator([false, true as Bool]) { content, phase in
-                                        content.rotationEffect(.degrees(phase ? -13 : -17))
+                                        content.rotationEffect(.degrees(phase ? 13 : 17))
                                     } animation: { _ in
                                             .easeInOut(duration: 0.7)
                                     }
+
+                                baseIcon2
                                     .onTapGesture {
                                         withAnimation(.easeOut(duration: 1)) {
-                                            revealHint = true
+                                            revealBook = true
                                         }
                                         playFlipSound()
                                         game.questionScore -= 1
                                     }
-                                    .rotation3DEffect(.degrees(revealHint ? 1400 : 0), axis: (x: 0, y: 1, z: 0))
-                                    .scaleEffect(revealHint ? 5 : 1)
-                                    .offset(x: revealHint ? geo.size.width / 2 : 0)
-                                    .opacity(revealHint ? 0 : 1)
-                                    .overlay {
-                                        Text(game.currentQuestion.hint)
-                                            .padding(.leading, 20)
-                                            .minimumScaleFactor(0.5)
-                                            .multilineTextAlignment(.center)
-                                            .opacity(revealHint ? 1 : 0)
-                                            .scaleEffect(revealHint ? 1.33 : 1)
-                                    }
+                                    .rotation3DEffect(.degrees(revealBook ? -1400 : 0), axis: (x: 0, y: 1, z: 0))
+                                    .scaleEffect(revealBook ? 5 : 1)
+                                    .offset(x: revealBook ? -geo.size.width / 2 : 0)
+                                    .opacity(revealBook ? 0 : 1 )
+                                    .overlay(
+                                        Image("hp\(game.currentQuestion.book)")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .padding(.trailing, 20)
+                                            .opacity(revealBook ? 1 : 0)
+                                            .scaleEffect(revealBook ? 1.33 : 1)
+                                    )
+                                    .transition(.offset(x: geo.size.width / 2))
                             }
                             
                         }
@@ -166,7 +196,7 @@ struct Gameplay: View {
         musicPlayer = try! AVAudioPlayer(contentsOf: URL(filePath: sound!))
         musicPlayer.numberOfLoops = -1 // infinity
         musicPlayer.volume = 0.1
-        musicPlayer.play()
+//        musicPlayer.play()
     }
     
     private func playFlipSound() {
